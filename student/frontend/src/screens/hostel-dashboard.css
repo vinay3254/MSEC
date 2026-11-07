@@ -105,9 +105,9 @@
 /* Navigation Tabs */
 .hostel-dash__tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--line);
 }
 

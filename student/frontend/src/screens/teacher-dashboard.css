@@ -69,7 +69,8 @@
   gap: 8px;
 }
 
-.teacher-dash__btn-sm {
+.teacher-dash__btn-sm,
+.teacher-dash__btn-ghost {
   padding: 8px 14px;
   font-size: 13px;
   font-weight: 600;
@@ -79,11 +80,40 @@
   color: var(--ink);
   cursor: pointer;
   transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
 }
 
-.teacher-dash__btn-sm:hover {
+.teacher-dash__btn-sm:hover,
+.teacher-dash__btn-ghost:hover {
   border-color: var(--primary);
   color: var(--primary);
+  background: var(--surface-2, rgba(0, 0, 0, 0.02));
+}
+
+.teacher-dash__btn-danger {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-ctl);
+  border: 1px solid #fecaca;
+  background: #fee2e2;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+}
+
+.teacher-dash__btn-danger:hover {
+  background: #fca5a5;
+  color: #b91c1c;
 }
 
 .teacher-dash__btn-sm--primary {
@@ -145,13 +175,15 @@
 }
 
 /* Stat Grid */
-.teacher-dash__stats {
+.teacher-dash__stats,
+.teacher-dash__quick-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
 }
 
-.teacher-dash__stat-card {
+.teacher-dash__stat-card,
+.teacher-dash__stat-box {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-card);

@@ -158,7 +158,8 @@ def init_db():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         google_sub TEXT UNIQUE,
         active INTEGER NOT NULL DEFAULT 1,
-        token_version INTEGER NOT NULL DEFAULT 0
+        token_version INTEGER NOT NULL DEFAULT 0,
+        onboarding_completed INTEGER NOT NULL DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS student_profiles (
@@ -1033,7 +1034,8 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     google_sub TEXT UNIQUE,
     active INTEGER NOT NULL DEFAULT 1,
-    token_version INTEGER NOT NULL DEFAULT 0
+    token_version INTEGER NOT NULL DEFAULT 0,
+    onboarding_completed INTEGER NOT NULL DEFAULT 0
 )
 """
 
@@ -1104,6 +1106,15 @@ def migrate_auth(conn):
     if flows and "'teacher'" not in flows[0]:
         conn.execute("DROP TABLE google_flows")  # short-lived rows only; safe to recreate
     conn.executescript(AUTH_TABLES)
+
+    # Ensure onboarding_completed column exists on users
+    curr_cols = {r[1] for r in conn.execute("PRAGMA table_info(users)")}
+    if 'onboarding_completed' not in curr_cols:
+        try:
+            conn.execute("ALTER TABLE users ADD COLUMN onboarding_completed INTEGER NOT NULL DEFAULT 0")
+        except Exception:
+            pass
+
     conn.commit()
 
 

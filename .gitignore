@@ -43,3 +43,4 @@ artifacts/
 .DS_Store
 *.swp
 *.swo
+.playwright-mcp/
