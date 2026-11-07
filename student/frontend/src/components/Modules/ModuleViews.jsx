@@ -112,15 +112,53 @@ export function StudentProfileView({ userRole }) {
     }
   };
 
-  const handlePrintIdCard = () => {
-    window.print();
+  const handlePrintFrontId = () => {
+    document.body.classList.remove('print-badge-only');
+    document.body.classList.add('printing-id-card', 'print-card-only');
+    setTimeout(() => {
+      window.print();
+    }, 50);
   };
+
+  const handlePrintBackBadge = () => {
+    document.body.classList.remove('print-card-only');
+    document.body.classList.add('printing-id-card', 'print-badge-only');
+    setTimeout(() => {
+      window.print();
+    }, 50);
+  };
+
+  useEffect(() => {
+    if (activeTab === 'digital_id') {
+      document.body.classList.add('digital-id-tab-active');
+    } else {
+      document.body.classList.remove('digital-id-tab-active');
+    }
+
+    const handleBeforePrint = () => {
+      if (activeTab === 'digital_id') {
+        document.body.classList.add('printing-id-card');
+      }
+    };
+    const handleAfterPrint = () => {
+      document.body.classList.remove('printing-id-card', 'print-card-only', 'print-badge-only');
+    };
+
+    window.addEventListener('beforeprint', handleBeforePrint);
+    window.addEventListener('afterprint', handleAfterPrint);
+
+    return () => {
+      document.body.classList.remove('digital-id-tab-active', 'printing-id-card', 'print-card-only', 'print-badge-only');
+      window.removeEventListener('beforeprint', handleBeforePrint);
+      window.removeEventListener('afterprint', handleAfterPrint);
+    };
+  }, [activeTab]);
 
   if (!profile) return <div style={{ padding: '20px' }}>Loading student profile...</div>;
 
   return (
-    <div>
-      <div className="banner-card">
+    <div className={`student-profile-view ${activeTab === 'digital_id' ? 'digital-id-active' : ''}`}>
+      <div className="banner-card profile-screen-only">
         <div>
           <div className="banner-title">Student Profile & Digital Identification</div>
           <div className="banner-sub">
@@ -129,11 +167,11 @@ export function StudentProfileView({ userRole }) {
         </div>
       </div>
 
-      {msg && <div className="alert-box alert-success" style={{ marginBottom: '16px' }}>{msg}</div>}
-      {error && <div className="alert-box alert-danger" style={{ marginBottom: '16px' }}>{error}</div>}
+      {msg && <div className="alert-box alert-success profile-screen-only" style={{ marginBottom: '16px' }}>{msg}</div>}
+      {error && <div className="alert-box alert-danger profile-screen-only" style={{ marginBottom: '16px' }}>{error}</div>}
 
       {/* Summary Profile Header Card */}
-      <div className="panel-card" style={{ marginBottom: '16px' }}>
+      <div className="panel-card profile-screen-only" style={{ marginBottom: '16px' }}>
         <div className="panel-card-body" style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div className="id-photo-box" style={{ width: '90px', height: '100px' }}>
             <ProfilePhoto url={profile.photo_url} name={profile.name} />
@@ -171,7 +209,7 @@ export function StudentProfileView({ userRole }) {
       </div>
 
       {/* Navigation Switcher */}
-      <div className="panel-card" style={{ marginBottom: '16px' }}>
+      <div className="panel-card profile-screen-only" style={{ marginBottom: '16px' }}>
         <div className="panel-card-body" style={{ padding: '8px 12px', display: 'flex', gap: '8px' }}>
           <button
             type="button"
@@ -373,8 +411,8 @@ export function StudentProfileView({ userRole }) {
 
       {/* TAB 2: DIGITAL STUDENT ID CARD & QR CODE */}
       {activeTab === 'digital_id' && digitalId && (
-        <div>
-          <div style={{ background: 'var(--bg)', border: '1px solid var(--line)', padding: '12px 16px', borderRadius: '4px', marginBottom: '16px' }}>
+        <div className="digital-id-container">
+          <div className="profile-screen-only" style={{ background: 'var(--bg)', border: '1px solid var(--line)', padding: '12px 16px', borderRadius: '4px', marginBottom: '16px' }}>
             <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--primary)' }}>
               Security & Credential Verification Notice
             </div>
@@ -383,9 +421,9 @@ export function StudentProfileView({ userRole }) {
             </div>
           </div>
 
-          <div className="id-card-wrapper">
+          <div className="id-card-wrapper id-card-print-target" id="student-id-card-print">
             {/* Front Card */}
-            <div className="id-card-badge">
+            <div className="id-card-badge id-card-front">
               <div className="id-card-header">
                 <div className="id-card-header-college">{digitalId.digital_id.college_name}</div>
                 <div className="id-card-header-sub">STUDENT IDENTITY CARD</div>
@@ -409,7 +447,7 @@ export function StudentProfileView({ userRole }) {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', borderTop: '1px solid var(--line)', paddingTop: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', borderTop: '1px solid var(--line)', paddingTop: '10px', marginTop: 'auto' }}>
                   <div>
                     <div className="id-field-label">Branch</div>
                     <div className="id-field-value" style={{ fontSize: '11px' }}>{digitalId.digital_id.department}</div>
@@ -436,7 +474,7 @@ export function StudentProfileView({ userRole }) {
             </div>
 
             {/* Back Card with Unique QR Code */}
-            <div className="id-card-badge">
+            <div className="id-card-badge id-card-back">
               <div className="id-card-header" style={{ background: 'var(--ink)' }}>
                 <div className="id-card-header-college">INSTITUTIONAL DIGITAL CREDENTIAL</div>
                 <div className="id-card-header-sub">OFFICIAL SCANNABLE VERIFICATION BADGE</div>
@@ -475,9 +513,12 @@ export function StudentProfileView({ userRole }) {
           </div>
 
           {/* Action Tools */}
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '16px' }}>
-            <button type="button" className="btn-primary" onClick={handlePrintIdCard}>
-              Print / Save ID Card
+          <div className="profile-screen-only" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '16px' }}>
+            <button type="button" className="btn-primary" onClick={handlePrintFrontId}>
+              Print Student ID Card
+            </button>
+            <button type="button" className="btn-primary" onClick={handlePrintBackBadge}>
+              Print Official Scannable Verification Badge
             </button>
             <button type="button" className="btn-secondary" onClick={() => setShowQrInspector(true)}>
               Inspect QR Encoded Content
@@ -489,7 +530,7 @@ export function StudentProfileView({ userRole }) {
 
           {/* Verification Result Drawer */}
           {verifyResult && (
-            <div style={{ marginTop: '16px', background: 'var(--good-tint)', border: '1px solid #86efac', padding: '16px', borderRadius: '4px' }}>
+            <div className="profile-screen-only" style={{ marginTop: '16px', background: 'var(--good-tint)', border: '1px solid #86efac', padding: '16px', borderRadius: '4px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontWeight: 700, color: 'var(--good-ink)', fontSize: '14px' }}>
                   Official Registrar Verification Certificate
@@ -513,7 +554,7 @@ export function StudentProfileView({ userRole }) {
 
           {/* Modal: QR Decoded Payload Inspector */}
           {showQrInspector && (
-            <div style={{
+            <div className="profile-screen-only" style={{
               position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
               backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex',
               alignItems: 'center', justifyContent: 'center', zIndex: 1000
@@ -547,7 +588,9 @@ export function StudentProfileView({ userRole }) {
           )}
         </div>
       )}
-      <PasswordSection />
+      <div className="profile-screen-only">
+        <PasswordSection />
+      </div>
     </div>
   );
 }

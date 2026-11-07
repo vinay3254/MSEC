@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "test": "node --test tests/*.test.ts",
-    "dev": "npm run build && python3 scripts/dev-server.py",
+    "dev": "npm run build && python scripts/dev-server.py",
     "check": "tsc --noEmit && node --check dist/app.js && node --check dist/views.js && node --check dist/model.js",
     "qa": "node scripts/browser-qa.mjs && node scripts/regression-qa.mjs && node scripts/storage-regression.mjs && node scripts/contrast-qa.mjs && node scripts/reference-layout-qa.mjs && node scripts/weekly-chart-qa.mjs && node scripts/viewport-qa.mjs",
     "qa:viewport": "node scripts/viewport-qa.mjs",

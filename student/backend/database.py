@@ -918,11 +918,43 @@ def init_db():
         ("academic_status", "TEXT DEFAULT 'Good Standing / Regular'"),
         ("backlogs", "INTEGER DEFAULT 0"),
         ("valid_thru", "TEXT DEFAULT 'June 2027'"),
-        ("photo_url", "TEXT DEFAULT '/uploads/profiles/default_student.png'")
+        ("photo_url", "TEXT DEFAULT '/uploads/profiles/default_student.png'"),
+        ("academic_year", "TEXT DEFAULT '3rd Year'")
     ]
     for col_name, col_def in profile_columns:
         if col_name not in existing_cols:
             cursor.execute(f"ALTER TABLE student_profiles ADD COLUMN {col_name} {col_def}")
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS teacher_profiles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER UNIQUE NOT NULL,
+        dob TEXT DEFAULT '',
+        designation TEXT DEFAULT 'Assistant Professor',
+        is_class_teacher BOOLEAN DEFAULT 0,
+        class_teacher_dept TEXT DEFAULT '',
+        class_teacher_sem INTEGER DEFAULT 6,
+        class_teacher_section TEXT DEFAULT 'A',
+        usn_start TEXT DEFAULT '',
+        usn_end TEXT DEFAULT '',
+        cabin_room TEXT DEFAULT 'Room 304, CS Academic Block',
+        contact_phone TEXT DEFAULT '',
+        office_hours TEXT DEFAULT '10:00 AM - 12:00 PM (Mon-Fri)',
+        bio TEXT DEFAULT '',
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+    """)
+
+    cursor.execute("PRAGMA table_info(teacher_classes)")
+    tc_cols = {col[1] for col in cursor.fetchall()}
+    for col_name, col_def in [
+        ("section", "TEXT DEFAULT 'A'"),
+        ("subject_code", "TEXT DEFAULT '21CS61'"),
+        ("subject_name", "TEXT DEFAULT 'Software Engineering'")
+    ]:
+        if col_name not in tc_cols:
+            cursor.execute(f"ALTER TABLE teacher_classes ADD COLUMN {col_name} {col_def}")
 
     # Create dummy downloadable sample files so download testing works immediately
     sample_note_path = os.path.join(NOTES_UPLOAD_DIR, 'distributed_systems_notes.pdf')

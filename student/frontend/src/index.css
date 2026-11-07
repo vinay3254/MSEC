@@ -365,21 +365,30 @@ body {
 
 /* DIGITAL STUDENT ID BADGE */
 .id-card-wrapper {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
-  flex-wrap: wrap;
-  justify-content: flex-start;
   margin: 20px 0;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .id-card-wrapper {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
 }
 
 .id-card-badge {
-  width: 360px;
+  width: 100%;
   background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .id-card-header {
@@ -405,6 +414,9 @@ body {
 
 .id-card-body {
   padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .id-photo-box {
@@ -448,4 +460,233 @@ body {
   justify-content: space-between;
   font-size: 10px;
   color: #64748b;
+}
+
+/* ==========================================================
+   PRINT MEDIA RULES: ISOLATE STUDENT ID CARD
+   ========================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+
+  /* Global hide for shell nav bars on any print */
+  .top-bar,
+  .bottom-tabs,
+  .mobile-tabs {
+    display: none !important;
+  }
+
+  /* Target ID Card Print Mode: Hide all screen-only chrome */
+  body.printing-id-card,
+  body.digital-id-tab-active,
+  body:has(.digital-id-active) {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body.printing-id-card .profile-screen-only,
+  body.printing-id-card .top-bar,
+  body.printing-id-card .bottom-tabs,
+  body.printing-id-card .banner-card,
+  body.printing-id-card .panel-card,
+  body.printing-id-card .alert-box,
+  body.printing-id-card button,
+  body.digital-id-tab-active .profile-screen-only,
+  body.digital-id-tab-active .top-bar,
+  body.digital-id-tab-active .bottom-tabs,
+  body.digital-id-tab-active .banner-card,
+  body.digital-id-tab-active .panel-card,
+  body.digital-id-tab-active .alert-box,
+  body.digital-id-tab-active button,
+  body:has(.digital-id-active) .profile-screen-only,
+  body:has(.digital-id-active) .top-bar,
+  body:has(.digital-id-active) .bottom-tabs,
+  body:has(.digital-id-active) .banner-card,
+  body:has(.digital-id-active) .panel-card,
+  body:has(.digital-id-active) .alert-box,
+  body:has(.digital-id-active) button {
+    display: none !important;
+  }
+
+  body.printing-id-card .app-main,
+  body.digital-id-tab-active .app-main,
+  body:has(.digital-id-active) .app-main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    min-height: auto !important;
+  }
+
+  body.printing-id-card .student-profile-view,
+  body.digital-id-tab-active .student-profile-view,
+  body:has(.digital-id-active) .student-profile-view {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Render ID Cards neatly centered side-by-side on 1 single page */
+  body.printing-id-card .id-card-wrapper,
+  body.digital-id-tab-active .id-card-wrapper,
+  body:has(.digital-id-active) .id-card-wrapper {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+    margin: 8mm auto !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 700px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  body.printing-id-card .id-card-badge,
+  body.digital-id-tab-active .id-card-badge,
+  body:has(.digital-id-active) .id-card-badge {
+    width: 325px !important;
+    flex: 0 0 325px !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+    border: 1.5px solid #1e3a8a !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body.printing-id-card .id-card-header,
+  body.digital-id-tab-active .id-card-header,
+  body:has(.digital-id-active) .id-card-header {
+    background: #1e3a8a !important;
+    color: #ffffff !important;
+    padding: 10px 12px !important;
+    text-align: center !important;
+    border-bottom: 2px solid #2563eb !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body.printing-id-card .id-card-badge:nth-child(2) .id-card-header,
+  body.digital-id-tab-active .id-card-badge:nth-child(2) .id-card-header,
+  body:has(.digital-id-active) .id-card-badge:nth-child(2) .id-card-header {
+    background: #0f172a !important;
+    border-bottom: 2px solid #334155 !important;
+  }
+
+  body.printing-id-card .id-card-header-college,
+  body.digital-id-tab-active .id-card-header-college,
+  body:has(.digital-id-active) .id-card-header-college {
+    color: #ffffff !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body.printing-id-card .id-card-header-sub,
+  body.digital-id-tab-active .id-card-header-sub,
+  body:has(.digital-id-active) .id-card-header-sub {
+    color: #bfdbfe !important;
+    font-size: 9px !important;
+    margin-top: 2px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body.printing-id-card .id-card-body,
+  body.digital-id-tab-active .id-card-body,
+  body:has(.digital-id-active) .id-card-body {
+    padding: 12px 14px !important;
+    background: #ffffff !important;
+  }
+
+  body.printing-id-card .id-photo-box,
+  body.digital-id-tab-active .id-photo-box,
+  body:has(.digital-id-active) .id-photo-box {
+    border: 1.5px solid #1e3a8a !important;
+    border-radius: 4px !important;
+    background: #f1f5f9 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body.printing-id-card .id-field-label,
+  body.digital-id-tab-active .id-field-label,
+  body:has(.digital-id-active) .id-field-label {
+    color: #64748b !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+  }
+
+  body.printing-id-card .id-field-value,
+  body.digital-id-tab-active .id-field-value,
+  body:has(.digital-id-active) .id-field-value {
+    color: #0f172a !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+  }
+
+  body.printing-id-card .id-card-footer,
+  body.digital-id-tab-active .id-card-footer,
+  body:has(.digital-id-active) .id-card-footer {
+    background: #f8fafc !important;
+    border-top: 1px solid #cbd5e1 !important;
+    padding: 8px 12px !important;
+    font-size: 9px !important;
+    color: #64748b !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* When printing Front Student ID Card only */
+  body.print-card-only .id-card-badge.id-card-back {
+    display: none !important;
+  }
+  body.print-card-only .id-card-wrapper {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 20mm auto !important;
+  }
+  body.print-card-only .id-card-badge.id-card-front {
+    display: block !important;
+    margin: 0 auto !important;
+    width: 360px !important;
+    flex: 0 0 360px !important;
+  }
+
+  /* When printing Official Scannable Verification Badge only */
+  body.print-badge-only .id-card-badge.id-card-front {
+    display: none !important;
+  }
+  body.print-badge-only .id-card-wrapper {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 20mm auto !important;
+  }
+  body.print-badge-only .id-card-badge.id-card-back {
+    display: block !important;
+    margin: 0 auto !important;
+    width: 360px !important;
+    flex: 0 0 360px !important;
+  }
 }

@@ -90,24 +90,25 @@ def classes_for(conn, user_id):
 
 
 def public_user(conn, row):
+    row_dict = dict(row)
     user = {
-        'id': row['id'],
-        'email': row['email'],
-        'role': row['role'],
-        'name': row['name'],
-        'identifier': row['identifier'],
-        'department': row['department'],
-        'semester': row['semester'],
-        'has_password': bool(row['password_hash']),
+        'id': row_dict['id'],
+        'email': row_dict['email'],
+        'role': row_dict['role'],
+        'name': row_dict['name'],
+        'identifier': row_dict['identifier'],
+        'department': row_dict['department'],
+        'semester': row_dict['semester'],
+        'has_password': bool(row_dict['password_hash']),
     }
-    onboarded = bool(row.get('onboarding_completed', False))
-    if row['role'] == 'student':
-        prof = conn.execute("SELECT usn, section, dob, academic_year FROM student_profiles WHERE user_id = ?", (row['id'],)).fetchone()
+    onboarded = bool(row_dict.get('onboarding_completed', False))
+    if row_dict['role'] == 'student':
+        prof = conn.execute("SELECT usn, section, dob, academic_year FROM student_profiles WHERE user_id = ?", (row_dict['id'],)).fetchone()
         user['profile'] = dict(prof) if prof else None
-    elif row['role'] in ('faculty', 'admin'):
-        prof = conn.execute("SELECT designation, dob, is_class_teacher, class_teacher_dept, class_teacher_sem, class_teacher_section, usn_start, usn_end, cabin_room FROM teacher_profiles WHERE user_id = ?", (row['id'],)).fetchone()
+    elif row_dict['role'] in ('faculty', 'admin'):
+        prof = conn.execute("SELECT designation, dob, is_class_teacher, class_teacher_dept, class_teacher_sem, class_teacher_section, usn_start, usn_end, cabin_room FROM teacher_profiles WHERE user_id = ?", (row_dict['id'],)).fetchone()
         user['profile'] = dict(prof) if prof else None
-        user['classes'] = classes_for(conn, row['id'])
+        user['classes'] = classes_for(conn, row_dict['id'])
     user['onboarding_completed'] = onboarded
     return user
 
