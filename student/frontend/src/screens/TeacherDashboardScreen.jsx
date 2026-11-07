@@ -1829,17 +1829,17 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal,
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', marginTop: '12px', justifyContent: 'flex-end' }}>
+              <div className="onboarding-actions" style={{ marginTop: '16px' }}>
                 <button
                   type="button"
-                  className="onboarding-btn--ghost"
+                  className="onboarding-btn onboarding-btn--cancel"
                   onClick={() => setShowEnrollModal(false)}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="onboarding-btn--primary"
+                  className="onboarding-btn onboarding-btn--primary"
                 >
                   Complete Enrollment & Add to Class
                 </button>

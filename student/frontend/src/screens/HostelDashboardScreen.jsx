@@ -739,18 +739,17 @@ export default function HostelDashboardScreen({ user, onSwitchPortal }) {
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', marginTop: '14px', justifyContent: 'flex-end' }}>
+              <div className="onboarding-actions" style={{ marginTop: '16px' }}>
                 <button
                   type="button"
-                  className="onboarding-btn--ghost"
+                  className="onboarding-btn onboarding-btn--cancel"
                   onClick={() => setShowOutpassModal(false)}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="onboarding-btn--primary"
-                  style={{ background: '#ea580c' }}
+                  className="onboarding-btn onboarding-btn--primary onboarding-btn--orange"
                 >
                   Submit & Issue Gate Pass
                 </button>
@@ -801,8 +800,8 @@ export default function HostelDashboardScreen({ user, onSwitchPortal }) {
 
             <button
               type="button"
-              className="onboarding-btn--primary"
-              style={{ width: '100%', marginTop: '16px', background: '#ea580c' }}
+              className="onboarding-btn onboarding-btn--primary onboarding-btn--orange"
+              style={{ width: '100%', marginTop: '16px' }}
               onClick={() => setShowQrModal(null)}
             >
               Close Pass
@@ -884,18 +883,17 @@ export default function HostelDashboardScreen({ user, onSwitchPortal }) {
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', marginTop: '14px', justifyContent: 'flex-end' }}>
+              <div className="onboarding-actions" style={{ marginTop: '16px' }}>
                 <button
                   type="button"
-                  className="onboarding-btn--ghost"
+                  className="onboarding-btn onboarding-btn--cancel"
                   onClick={() => setShowComplaintModal(false)}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="onboarding-btn--primary"
-                  style={{ background: '#ea580c' }}
+                  className="onboarding-btn onboarding-btn--primary onboarding-btn--orange"
                 >
                   Log Maintenance Ticket
                 </button>
