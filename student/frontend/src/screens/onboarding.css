@@ -1,0 +1,266 @@
+/* Onboarding Overlay & Modal Styles */
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 8, 30, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.onboarding-modal {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  max-width: 620px;
+  width: 100%;
+  padding: 28px 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+  animation: modalPop 0.25s ease-out;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.onboarding-modal__head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 14px;
+}
+
+.onboarding-modal__badge {
+  display: inline-block;
+  align-self: flex-start;
+  background: var(--primary-tint, rgba(78, 36, 120, 0.12));
+  color: var(--primary, #4E2478);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.onboarding-modal__title {
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 4px 0 0;
+}
+
+.onboarding-modal__sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.onboarding-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.onboarding-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.onboarding-row--3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.onboarding-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.onboarding-field label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.onboarding-input,
+.onboarding-select,
+.onboarding-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.onboarding-input:focus,
+.onboarding-select:focus,
+.onboarding-textarea:focus {
+  border-color: var(--primary, #4E2478);
+  box-shadow: 0 0 0 2px rgba(78, 36, 120, 0.15);
+}
+
+.onboarding-box {
+  background: var(--surface-sunken, rgba(0, 0, 0, 0.02));
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.onboarding-btn {
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: none;
+  background: var(--primary, #4E2478);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.onboarding-btn:hover {
+  background: #3B1B5C;
+}
+
+.onboarding-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+.onboarding-modal__close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface-sunken, rgba(0, 0, 0, 0.04));
+  color: var(--muted);
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.onboarding-modal__close:hover {
+  background: var(--line);
+  color: var(--ink);
+  transform: scale(1.05);
+}
+
+.onboarding-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.onboarding-btn--cancel {
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+  font-weight: 600;
+}
+
+.onboarding-btn--cancel:hover {
+  background: var(--surface-sunken, rgba(0, 0, 0, 0.05)) !important;
+  border-color: var(--muted) !important;
+}
+
+.onboarding-btn--primary {
+  flex: 1;
+}
+
+.onboarding-class-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+/* Class Preference Switcher in Teacher Dashboard */
+.teacher-dash__pref-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-ctl);
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(78, 36, 120, 0.06);
+}
+
+.teacher-dash__pref-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.teacher-dash__pref-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--primary);
+  letter-spacing: 0.5px;
+}
+
+.teacher-dash__pref-select {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}

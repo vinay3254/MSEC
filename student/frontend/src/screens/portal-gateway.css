@@ -1,0 +1,295 @@
+/* Portal Gateway - Institutional Access Selection */
+.gateway {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(120% 70% at 50% -10%, rgba(78, 36, 120, 0.12), transparent 70%),
+    var(--bg);
+  padding: calc(24px + var(--safe-top)) 20px calc(32px + var(--safe-bottom));
+  box-sizing: border-box;
+}
+
+.gateway * {
+  font-family: var(--font-body);
+}
+
+.gateway__header {
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.gateway__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gateway__brand-logo {
+  width: 52px;
+  height: 52px;
+  filter: drop-shadow(0 4px 12px rgba(78, 36, 120, 0.2));
+}
+
+.gateway__brand-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.gateway__inst-name {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  color: var(--primary);
+  line-height: 1.1;
+}
+
+.gateway__inst-sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+.gateway__title-box {
+  margin-top: 14px;
+}
+
+.gateway__title {
+  font-family: var(--font-head);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+  margin: 0 0 6px;
+}
+
+.gateway__subtitle {
+  font-size: 15px;
+  color: var(--muted);
+  margin: 0;
+  max-width: 520px;
+}
+
+.gateway__grid {
+  max-width: 980px;
+  width: 100%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .gateway__grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.gateway__card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 16px rgba(78, 36, 120, 0.06);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.gateway__card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(78, 36, 120, 0.14);
+  border-color: var(--primary);
+}
+
+.gateway__card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gateway__card-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.gateway__card-badge--student {
+  background: var(--primary-tint);
+  color: var(--primary);
+}
+
+.gateway__card-badge--teacher {
+  background: var(--good-tint);
+  color: var(--good-ink);
+}
+
+.gateway__card-badge--library {
+  background: var(--info-tint);
+  color: var(--info-ink);
+}
+
+.gateway__card-badge--hostel {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.gateway__card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.gateway__card-icon--student {
+  background: var(--primary-tint);
+  color: var(--primary);
+}
+
+.gateway__card-icon--teacher {
+  background: var(--good-tint);
+  color: var(--good);
+}
+
+.gateway__card-icon--library {
+  background: var(--info-tint);
+  color: var(--info);
+}
+
+.gateway__card-icon--hostel {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.gateway__card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gateway__card-title {
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+
+.gateway__card-desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.gateway__features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.gateway__feature-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.gateway__card-btn {
+  width: 100%;
+  height: 48px;
+  border: 0;
+  border-radius: var(--radius-ctl);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  margin-top: auto;
+}
+
+.gateway__card-btn--student {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.gateway__card-btn--student:hover {
+  background: var(--primary-deep);
+}
+
+.gateway__card-btn--teacher {
+  background: #1C8A5C;
+  color: #ffffff;
+}
+
+.gateway__card-btn--teacher:hover {
+  background: #13694A;
+}
+
+.gateway__card-btn--library {
+  background: #2563A6;
+  color: #ffffff;
+}
+
+.gateway__card-btn--library:hover {
+  background: #1A477A;
+}
+
+.gateway__card-btn--hostel {
+  background: #D97706;
+  color: #ffffff;
+}
+
+.gateway__card-btn--hostel:hover {
+  background: #B45309;
+}
+
+.gateway__footer {
+  max-width: 960px;
+  width: 100%;
+  margin: 36px auto 0;
+  text-align: center;
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gateway__footer-text {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.gateway__footer-help {
+  font-size: 12px;
+  color: var(--muted);
+}

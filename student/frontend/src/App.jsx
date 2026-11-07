@@ -4,6 +4,11 @@ import BottomTabs from './components/Shell/BottomTabs';
 import MoreScreen from './components/Shell/MoreScreen';
 import './components/Shell/shell.css';
 import AuthScreen from './screens/AuthScreen';
+import PortalGateway from './screens/PortalGateway';
+import TeacherDashboardScreen from './screens/TeacherDashboardScreen';
+import LibraryPortalWrapper from './screens/LibraryPortalWrapper';
+import HostelPortalWrapper from './screens/HostelPortalWrapper';
+import StudentOnboardingModal from './components/StudentOnboardingModal';
 import SCREEN_COMPONENTS from './screens/index.js';
 import { SCREENS, TABS, tabFor, pushScreen, popScreen } from './nav';
 import { clearAuth, getToken, getUser, setUser, UNAUTHORIZED_EVENT } from './api';
@@ -19,7 +24,11 @@ import './theme/responsive.css';
 import './theme/screens.css';
 
 export default function App() {
+  // portalMode: null (Gateway) | 'student' | 'teacher' | 'library'
+  const [portalMode, setPortalMode] = useState(() => localStorage.getItem('msec_portal_mode') || null);
   const [currentUser, setCurrentUser] = useState(() => (getToken() ? getUser() : null));
+  const [dismissStudentOnboarding, setDismissStudentOnboarding] = useState(false);
+  const [showStudentModal, setShowStudentModal] = useState(false);
   const [authError, setAuthError] = useState('');
   const [stack, setStack] = useState(['dashboard']);
   const online = useOnline();
@@ -55,13 +64,13 @@ export default function App() {
     return () => { delete window.__msecNav; };
   }, [navigate, goBack]);
 
-  // Confirm the stored session and refresh the user; an ended session fires UNAUTHORIZED_EVENT.
+  // Confirm the stored session and refresh the user
   useEffect(() => {
     if (!getToken()) return;
     authApi.me().then(({ user }) => { setUser(user); setCurrentUser(user); }).catch(() => {});
   }, []);
 
-  // Session expired or revoked mid-use: show sign-in, keep the screen stack so we return to it.
+  // Session expired or revoked mid-use
   useEffect(() => {
     const ended = () => {
       setAuthError('Your session ended. Sign in again to continue.');
@@ -90,20 +99,86 @@ export default function App() {
   };
   const handleLogout = signOut;
   const handleLogoutAll = async () => {
-    try { await authApi.logoutAll(); } catch { /* signing out locally regardless */ }
+    try { await authApi.logoutAll(); } catch { /* signing out locally */ }
     signOut();
   };
 
-  // QA-only hook: ?screen=auth renders the auth screen. Excluded from the APK (mode android).
+  const handleSelectPortal = (mode) => {
+    setPortalMode(mode);
+    localStorage.setItem('msec_portal_mode', mode);
+  };
+
+  const handleSwitchPortal = () => {
+    setPortalMode(null);
+    localStorage.removeItem('msec_portal_mode');
+    setAuthError('');
+  };
+
+  // QA-only hook: ?screen=auth renders the auth screen
   const forceAuth = import.meta.env.MODE !== 'android'
     && new URLSearchParams(window.location.search).get('screen') === 'auth';
 
+  // 1. GATEWAY SCREEN: Show portal selection when no portal is chosen
+  if (!portalMode) {
+    return <PortalGateway onSelectPortal={handleSelectPortal} />;
+  }
+
+  // 2. LIBRARY PORTAL: Dedicated digital library access
+  if (portalMode === 'library') {
+    return <LibraryPortalWrapper onSwitchPortal={handleSwitchPortal} />;
+  }
+
+  // HOSTEL MANAGEMENT PORTAL: Campus residence management
+  if (portalMode === 'hostel') {
+    return <HostelPortalWrapper onSwitchPortal={handleSwitchPortal} user={currentUser} />;
+  }
+
+  // 3. TEACHER DASHBOARD ACCESS
+  if (portalMode === 'teacher') {
+    if (!currentUser || forceAuth) {
+      return (
+        <AuthScreen
+          key="teacher-auth"
+          portalName="Teacher Desk"
+          initialError={authError}
+          onBackToGateway={handleSwitchPortal}
+          onLoginSuccess={(user) => {
+            setAuthError('');
+            setCurrentUser(user);
+          }}
+        />
+      );
+    }
+    return (
+      <TeacherDashboardScreen
+        user={currentUser}
+        onLogout={handleLogout}
+        onSwitchPortal={handleSwitchPortal}
+        onUpdateUser={(updatedUser) => {
+          setUser(updatedUser);
+          setCurrentUser(updatedUser);
+        }}
+      />
+    );
+  }
+
+  // 4. STUDENT DASHBOARD ACCESS (Current codebase)
   if (!currentUser || forceAuth) {
-    return <AuthScreen key={authError} initialError={authError} onLoginSuccess={(user) => {
-      setAuthError('');
-      setCurrentUser(user);
-      if (forceAuth) window.history.replaceState(null, '', window.location.pathname);
-    }} />;
+    return (
+      <AuthScreen
+        key={authError || 'student-auth'}
+        portalName="Student Portal"
+        initialError={authError}
+        onBackToGateway={handleSwitchPortal}
+        onLoginSuccess={(user) => {
+          setAuthError('');
+          setCurrentUser(user);
+          setDismissStudentOnboarding(false);
+          setShowStudentModal(!user?.onboarding_completed);
+          if (forceAuth) window.history.replaceState(null, '', window.location.pathname);
+        }}
+      />
+    );
   }
 
   const activeId = stack[stack.length - 1];
@@ -115,24 +190,43 @@ export default function App() {
 
   const renderActiveView = () => {
     if (activeId === 'more') {
-      return <MoreScreen user={currentUser} onOpen={navigate} onLogout={handleLogout} onLogoutAll={handleLogoutAll} />;
+      return (
+        <MoreScreen
+          user={currentUser}
+          onOpen={navigate}
+          onLogout={handleLogout}
+          onLogoutAll={handleLogoutAll}
+          onSwitchPortal={handleSwitchPortal}
+        />
+      );
     }
     const Screen = SCREEN_COMPONENTS[activeId] || SCREEN_COMPONENTS.dashboard;
     if (activeId === 'dashboard') {
-      return <Screen onNavigate={(id) => navigate(id)} userRole={role} />;
+      return <Screen onNavigate={(id) => navigate(id)} userRole={role} currentUser={currentUser} onOpenOnboarding={() => setShowStudentModal(true)} />;
     }
     const params = new URLSearchParams(savedEndpoint.split('?')[1] || '');
-    return <Screen userRole={role} currentUser={currentUser} onNavigate={navigate}
-      initialView={showSaved ? params.get('view') : undefined}
-      initialDay={showSaved ? Number(params.get('day')) || undefined : undefined}
-      initialSemester={showSaved ? Number(params.get('semester')) || undefined : undefined} />;
+    return (
+      <Screen
+        userRole={role}
+        currentUser={currentUser}
+        onNavigate={navigate}
+        initialView={showSaved ? params.get('view') : undefined}
+        initialDay={showSaved ? Number(params.get('day')) || undefined : undefined}
+        initialSemester={showSaved ? Number(params.get('semester')) || undefined : undefined}
+      />
+    );
   };
 
   const isTab = TABS.includes(activeId);
   const MONTH = { month: 'long', year: 'numeric', timeZone: 'Asia/Kolkata' };
   const headerProps = activeId === 'dashboard'
-    ? { variant: 'home', user: currentUser, unread: false,
-        onBell: () => navigate('notifications'), onAvatar: () => navigate('profile') }
+    ? {
+        variant: 'home',
+        user: currentUser,
+        unread: false,
+        onBell: () => navigate('notifications'),
+        onAvatar: () => navigate('profile'),
+      }
     : {
         variant: activeId === 'assistant' ? 'ai' : 'page',
         title: activeId === 'academics' ? 'Academics' : SCREENS[activeId].label,
@@ -142,6 +236,26 @@ export default function App() {
 
   return (
     <>
+      {(currentUser?.role === 'student' || (!currentUser?.role && portalMode === 'student')) &&
+        ((!currentUser?.onboarding_completed && !dismissStudentOnboarding) || showStudentModal) && (
+        <StudentOnboardingModal
+          user={currentUser}
+          onComplete={(updatedUser) => {
+            setUser(updatedUser);
+            setCurrentUser(updatedUser);
+            setShowStudentModal(false);
+            setDismissStudentOnboarding(false);
+          }}
+          onClose={() => {
+            setShowStudentModal(false);
+            setDismissStudentOnboarding(true);
+          }}
+          onCancel={() => {
+            setShowStudentModal(false);
+            setDismissStudentOnboarding(true);
+          }}
+        />
+      )}
       <TopBar key={`h-${activeId}`} {...headerProps} />
       <main key={activeId} className={`app-main app-main--${activeId} screen-anim screen-anim--${motion}`}>
         {!online && (OFFLINE_ENDPOINTS[activeId] || LIVE_ONLY_SCREENS.has(activeId)) && !showSaved

@@ -167,3 +167,59 @@
 
 /* Sign-in is full-bleed on wide screens (the app shell column is capped at 1180px). */
 #root:has(> .auth) { max-width: none; }
+
+/* Enhanced Tabs & Badges for Email Verification */
+.auth__tabs {
+  display: flex;
+  background: rgba(78, 36, 120, 0.08);
+  padding: 4px;
+  border-radius: 14px;
+  gap: 4px;
+  margin: 6px 0 10px;
+}
+.auth__tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.auth__tab:hover {
+  color: var(--primary);
+}
+.auth__tab--active {
+  background: #ffffff;
+  color: var(--primary);
+  box-shadow: 0 2px 8px rgba(78, 36, 120, 0.14);
+}
+.auth__email-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(78, 36, 120, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--ink);
+}
+.auth__email-badge button {
+  background: none;
+  border: 0;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+.auth__email-badge button:hover {
+  text-decoration: underline;
+}

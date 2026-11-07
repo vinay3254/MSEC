@@ -20,6 +20,8 @@ PUBLIC_ENDPOINTS = {
     'auth.google_start',
     'auth.google_callback',
     'auth.google_exchange',
+    'auth.signup_request',
+    'auth.signup_verify',
 }
 
 STAFF = ('faculty', 'admin')
@@ -124,6 +126,8 @@ def guard():
     if not load_session(endpoint):
         return jsonify({'error': 'Sign in to continue.'}), 401
     allowed = roles_for(endpoint, request.method)
+    if endpoint == 'teacher.teacher_onboarding':
+        allowed = None
     if allowed and g.user['role'] not in allowed:
         return jsonify({'error': "You don't have access."}), 403
     return None

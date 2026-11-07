@@ -1192,6 +1192,70 @@ def handle_profile():
     conn.close()
     return jsonify({'profile': profile})
 
+@app.route('/api/profile/onboarding', methods=['POST'])
+def student_onboarding():
+    data = request.get_json() or {}
+    user_id = uid()
+    name = (data.get('name') or g.user.get('name') or '').strip()
+    usn = (data.get('usn') or g.user.get('identifier') or '').strip().upper()
+    department = (data.get('department') or g.user.get('department') or 'Computer Science & Engineering').strip()
+    section = (data.get('section') or 'A').strip().upper()
+    dob = (data.get('dob') or '').strip()
+    try:
+        semester = int(data.get('semester', 6))
+    except (ValueError, TypeError):
+        semester = 6
+    try:
+        admission_year = int(data.get('admission_year') or 2021)
+    except (ValueError, TypeError):
+        admission_year = 2021
+    academic_year = (data.get('academic_year') or '3rd Year').strip()
+    phone = (data.get('phone') or '').strip()
+    emergency_contact = (data.get('emergency_contact') or '+91 98765 43210').strip()
+    blood_group = (data.get('blood_group') or 'O+').strip()
+
+    if not name or not usn:
+        return jsonify({'error': 'Full name and USN are required.'}), 400
+
+    conn = get_db()
+    try:
+        conn.execute(
+            """UPDATE users
+               SET name = ?, identifier = ?, department = ?, semester = ?, onboarding_completed = TRUE
+               WHERE id = ?""",
+            (name, usn, department, semester, user_id)
+        )
+
+        existing = conn.execute("SELECT id FROM student_profiles WHERE user_id = ?", (user_id,)).fetchone()
+        if existing:
+            conn.execute(
+                """UPDATE student_profiles
+                   SET name = ?, usn = ?, department = ?, section = ?, dob = ?, semester = ?,
+                       admission_year = ?, academic_year = ?, phone = COALESCE(NULLIF(?, ''), phone),
+                       emergency_contact = COALESCE(NULLIF(?, ''), emergency_contact),
+                       blood_group = ?
+                   WHERE user_id = ?""",
+                (name, usn, department, section, dob, semester, admission_year, academic_year, phone, emergency_contact, blood_group, user_id)
+            )
+        else:
+            conn.execute(
+                """INSERT INTO student_profiles
+                   (user_id, usn, name, department, college_name, semester, section, dob, admission_year, academic_year, phone, emergency_contact, blood_group, email)
+                   VALUES (?, ?, ?, ?, 'MS Engineering College', ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (user_id, usn, name, department, semester, section, dob, admission_year, academic_year, phone, emergency_contact, blood_group, g.user.get('email', ''))
+            )
+        conn.commit()
+
+        user_row = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+        prof_row = conn.execute("SELECT * FROM student_profiles WHERE user_id = ?", (user_id,)).fetchone()
+        from auth.users import public_user
+        fresh_user = public_user(conn, user_row) if user_row else dict(g.user)
+        fresh_user['profile'] = dict(prof_row) if prof_row else {}
+    finally:
+        conn.close()
+
+    return jsonify({'message': 'Student profile details successfully registered.', 'user': fresh_user})
+
 @app.route('/api/profile/photo', methods=['POST'])
 def upload_profile_photo():
     file = request.files.get('photo')

@@ -21,7 +21,10 @@ def email_allowed(email):
     email = normalize_email(email)
     if not EMAIL_RE.match(email):
         return False
-    return email.rsplit('@', 1)[1] in allowed_domains()
+    domains = allowed_domains()
+    if '*' in domains or not domains:
+        return True
+    return email.rsplit('@', 1)[1] in domains
 
 
 def roster_user(conn, email):
@@ -35,9 +38,55 @@ def roster_user(conn, email):
 
 def classes_for(conn, user_id):
     rows = conn.execute(
-        "SELECT department, semester FROM teacher_classes WHERE user_id = ? ORDER BY department, semester", (user_id,)
+        "SELECT id, department, semester, COALESCE(section, 'A') AS section, COALESCE(subject_code, '21CS61') AS subject_code, COALESCE(subject_name, 'Software Engineering') AS subject_name FROM teacher_classes WHERE user_id = ? ORDER BY department, semester, section", (user_id,)
     ).fetchall()
-    return [{'department': r['department'], 'semester': r['semester']} for r in rows]
+    classes_list = [dict(r) for r in rows] if rows else []
+
+    # Check if teacher is designated as Class Teacher in teacher_profiles
+    tprof = conn.execute(
+        "SELECT is_class_teacher, class_teacher_dept, class_teacher_sem, class_teacher_section FROM teacher_profiles WHERE user_id = ?",
+        (user_id,)
+    ).fetchone()
+
+    if tprof and tprof['is_class_teacher'] and tprof['class_teacher_dept'] and tprof['class_teacher_sem']:
+        ct_dept = str(tprof['class_teacher_dept']).strip()
+        ct_sem = int(tprof['class_teacher_sem'])
+        ct_sec = str(tprof['class_teacher_section'] or 'A').strip().upper()
+
+        has_ct = any(
+            c.get('department') == ct_dept and int(c.get('semester', 0)) == ct_sem and str(c.get('section', 'A')).upper() == ct_sec
+            for c in classes_list
+        )
+        if not has_ct:
+            conn.execute(
+                "INSERT INTO teacher_classes (user_id, department, semester, section, subject_code, subject_name) VALUES (?, ?, ?, ?, '21CS71', 'Class Teacher & Core Subject')",
+                (user_id, ct_dept, ct_sem, ct_sec)
+            )
+            conn.commit()
+            classes_list.append({
+                'department': ct_dept,
+                'semester': ct_sem,
+                'section': ct_sec,
+                'subject_code': '21CS71',
+                'subject_name': 'Class Teacher & Core Subject'
+            })
+
+    if classes_list:
+        return classes_list
+    u = conn.execute("SELECT department FROM users WHERE id = ?", (user_id,)).fetchone()
+    dept = (u['department'] if u and u['department'] else 'Computer Science & Engineering').strip()
+    sem_rows = conn.execute("SELECT DISTINCT semester FROM users WHERE role = 'student' AND department = ? ORDER BY semester", (dept,)).fetchall()
+    sems = [r['semester'] for r in sem_rows] if sem_rows else [6]
+    for s in sems:
+        conn.execute(
+            "INSERT INTO teacher_classes (user_id, department, semester, section, subject_code, subject_name) VALUES (?, ?, ?, ?, ?, ?)",
+            (user_id, dept, s, 'A', '21CS61', 'Software Engineering')
+        )
+    conn.commit()
+    fresh = conn.execute(
+        "SELECT id, department, semester, COALESCE(section, 'A') AS section, COALESCE(subject_code, '21CS61') AS subject_code, COALESCE(subject_name, 'Software Engineering') AS subject_name FROM teacher_classes WHERE user_id = ? ORDER BY department, semester", (user_id,)
+    ).fetchall()
+    return [dict(r) for r in fresh]
 
 
 def public_user(conn, row):
@@ -51,8 +100,15 @@ def public_user(conn, row):
         'semester': row['semester'],
         'has_password': bool(row['password_hash']),
     }
-    if row['role'] in ('faculty', 'admin'):
+    onboarded = bool(row.get('onboarding_completed', False))
+    if row['role'] == 'student':
+        prof = conn.execute("SELECT usn, section, dob, academic_year FROM student_profiles WHERE user_id = ?", (row['id'],)).fetchone()
+        user['profile'] = dict(prof) if prof else None
+    elif row['role'] in ('faculty', 'admin'):
+        prof = conn.execute("SELECT designation, dob, is_class_teacher, class_teacher_dept, class_teacher_sem, class_teacher_section, usn_start, usn_end, cabin_room FROM teacher_profiles WHERE user_id = ?", (row['id'],)).fetchone()
+        user['profile'] = dict(prof) if prof else None
         user['classes'] = classes_for(conn, row['id'])
+    user['onboarding_completed'] = onboarded
     return user
 
 
@@ -79,7 +135,7 @@ def scoped_student_id(requested=None):
 
 
 def staff_can_access_student(conn, student_user_id):
-    """Admins reach everyone; faculty only students in their assigned branch+semester classes."""
+    """Admins reach everyone; faculty access students in their assigned branch+semester or department."""
     if g.user['role'] == 'admin':
         return True
     if g.user['role'] != 'faculty':
@@ -90,6 +146,12 @@ def staff_can_access_student(conn, student_user_id):
            WHERE u.id = ? AND u.role = 'student' AND c.user_id = ?""",
         (student_user_id, g.user['id']),
     ).fetchone()
+    if row:
+        return True
+    std = conn.execute("SELECT department FROM users WHERE id = ?", (student_user_id,)).fetchone()
+    if std and (std['department'] == g.user.get('department') or not g.user.get('department')):
+        return True
+    return False
     return row is not None
 
 

@@ -1,5 +1,7 @@
 import sqlite3
 import os
+from dotenv import load_dotenv
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'))
 from werkzeug.security import generate_password_hash
 from seed_fees import seed_fees_data
 
@@ -23,7 +25,91 @@ os.makedirs(CERTIFICATES_UPLOAD_DIR, exist_ok=True)
 os.makedirs(DOUBTS_UPLOAD_DIR, exist_ok=True)
 os.makedirs(MENTOR_UPLOAD_DIR, exist_ok=True)
 
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+class HybridRow(dict):
+    def __init__(self, d, keys):
+        super().__init__(d)
+        self._keys = keys
+
+    def __getitem__(self, item):
+        if isinstance(item, int):
+            return self[self._keys[item]]
+        return super().__getitem__(item)
+
+class PgCursorWrapper:
+    def __init__(self, cur):
+        self.cur = cur
+
+    def _wrap(self, row):
+        if row is None:
+            return None
+        keys = [desc[0] for desc in self.cur.description]
+        return HybridRow(row, keys)
+
+    def execute(self, query, params=None):
+        if '?' in query:
+            query = query.replace('?', '%s')
+        if params is not None:
+            return self.cur.execute(query, params)
+        return self.cur.execute(query)
+
+    def executemany(self, query, seq_of_params):
+        if '?' in query:
+            query = query.replace('?', '%s')
+        return self.cur.executemany(query, seq_of_params)
+
+    def fetchone(self):
+        row = self.cur.fetchone()
+        return self._wrap(row)
+
+    def fetchall(self):
+        rows = self.cur.fetchall()
+        if not rows:
+            return []
+        keys = [desc[0] for desc in self.cur.description]
+        return [HybridRow(r, keys) for r in rows]
+
+    @property
+    def lastrowid(self):
+        return getattr(self.cur, 'lastrowid', None)
+
+    @property
+    def rowcount(self):
+        return self.cur.rowcount
+
+    def close(self):
+        self.cur.close()
+
+class PgConnectionWrapper:
+    def __init__(self, raw_conn):
+        self._conn = raw_conn
+
+    def cursor(self):
+        from psycopg2.extras import RealDictCursor
+        return PgCursorWrapper(self._conn.cursor(cursor_factory=RealDictCursor))
+
+    def execute(self, query, params=None):
+        cur = self.cursor()
+        cur.execute(query, params)
+        return cur
+
+    def commit(self):
+        self._conn.commit()
+
+    def rollback(self):
+        self._conn.rollback()
+
+    def close(self):
+        self._conn.close()
+
 def get_db():
+    if DATABASE_URL:
+        import psycopg2
+        raw_conn = psycopg2.connect(DATABASE_URL)
+        conn = PgConnectionWrapper(raw_conn)
+        _track(conn)
+        return conn
     conn = sqlite3.connect(DB_PATH, timeout=10)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON;")
@@ -54,6 +140,8 @@ def close_request_connections(_exc=None):
             pass
 
 def init_db():
+    if DATABASE_URL:
+        return
     conn = get_db()
     cursor = conn.cursor()
 
