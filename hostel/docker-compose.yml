@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: msec-hostel-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=False
+      - HOST=0.0.0.0
+      - PORT=8000
+      - SECRET_KEY=msec-production-secure-random-token-2026
+      - DATABASE_URL=sqlite:///./hostel_management.db
+      - BACKEND_CORS_ORIGINS=["http://localhost:5173","http://localhost:80","http://127.0.0.1"]
+    volumes:
+      - backend_data:/app
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: msec-hostel-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  backend_data:

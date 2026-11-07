@@ -1,0 +1,26 @@
+{
+  "name": "msec-hostel-management",
+  "version": "1.0.0",
+  "description": "Production-ready MSEC Hostel Management Dashboard with FastAPI backend and React TypeScript frontend",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && python run.py",
+    "build:frontend": "cd frontend && npm run build",
+    "test:backend": "cd backend && pytest",
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "cd backend && pip install -r requirements.txt",
+    "setup": "npm run install:frontend && npm run install:backend"
+  },
+  "keywords": [
+    "msec",
+    "hostel-management",
+    "fastapi",
+    "react",
+    "typescript",
+    "tailwind",
+    "dashboard"
+  ],
+  "author": "MSEC Team",
+  "license": "MIT"
+}

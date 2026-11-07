@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #4E2478;
+  --color-primary-dark: #38195A;
+  --color-primary-light: #EDE4F5;
+
+  --color-accent: #F30137;
+  --color-accent-dark: #C4012C;
+  --color-accent-light: #FDE2E7;
+
+  --color-ink: #1A1523;
+  --color-ink-muted: #5C5468;
+  --color-border: #E3DEE9;
+  --color-surface: #FFFFFF;
+  --color-bg: #FAF8FC;
+
+  --color-success: #1C8A5C;
+  --color-warning: #D98B16;
+  --color-danger: #D6264C;
+  --color-info: #2563A6;
+
+  --font-heading: 'Poppins', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .font-heading, .stat-number {
+  font-family: var(--font-heading);
+}
+
+/* Custom crisp scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF8FC;
+}
+::-webkit-scrollbar-thumb {
+  background: #E3DEE9;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #5C5468;
+}
