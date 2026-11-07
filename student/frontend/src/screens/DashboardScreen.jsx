@@ -21,7 +21,7 @@ function SectionHeader({ title, actionLabel, onAction }) {
   );
 }
 
-export default function DashboardHome({ onNavigate }) {
+export default function DashboardHome({ onNavigate, currentUser, onOpenOnboarding }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -73,6 +73,45 @@ export default function DashboardHome({ onNavigate }) {
   return (
     <div className="page dashboard" data-qa="dashboard-screen">
       <SavedRecordNotice endpoint="/dashboard/summary" />
+      {!currentUser?.onboarding_completed && (
+        <div style={{
+          background: 'rgba(78, 36, 120, 0.08)',
+          border: '1px solid #4E2478',
+          borderRadius: '14px',
+          padding: '14px 18px',
+          marginBottom: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px',
+          flexWrap: 'wrap'
+        }}>
+          <div>
+            <strong style={{ color: '#4E2478', fontSize: '14px', display: 'block', marginBottom: '2px' }}>
+              Student Profile Setup Required
+            </strong>
+            <span style={{ fontSize: '13px', color: 'var(--muted)' }}>
+              Please enter your Full Name, USN, Department, Section (A, B, C, D), DOB, Semester, and Academic Year.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={onOpenOnboarding}
+            style={{
+              background: '#4E2478',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '8px 16px',
+              fontSize: '13px',
+              fontWeight: 700,
+              cursor: 'pointer'
+            }}
+          >
+            Complete Setup Now
+          </button>
+        </div>
+      )}
       <section className="dashboard__hero" aria-label={`Student summary for ${student.name}`}>
         <div className="dashboard__hero-top">
           <AttendanceRing value={student.overall_attendance} />

@@ -14,6 +14,8 @@ export const authApi = {
   login: (email, password, remember) => post('/auth/login', { email, password, remember }),
   requestCode: (email, purpose = 'login') => post('/auth/code/request', { email, purpose }),
   verifyCode: (email, code, remember) => post('/auth/code/verify', { email, code, remember }),
+  requestSignupCode: (data) => post('/auth/signup/request', data),
+  verifySignup: (data) => post('/auth/signup/verify', data),
   resetPassword: (email, code, newPassword) => post('/auth/password/reset', { email, code, new_password: newPassword }),
   exchangeGoogle: (code) => post('/auth/google/exchange', { code }),
   setPassword: (currentPassword, newPassword) =>
