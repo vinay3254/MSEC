@@ -21,3 +21,8 @@ MSEC/
 
 - **Frontend**: TypeScript / JavaScript, Node.js
 - **Backend**: Python 3 (`fastapi`, `uvicorn`, `pydantic`, `python-dotenv`)
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
